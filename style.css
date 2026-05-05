@@ -1,0 +1,1427 @@
+/* ============================================================
+   STANFORD O'QUV MARKAZI — style.css
+   Version : 2.0  (Refactored — Mobile-First + Typography)
+
+   WHAT CHANGED FROM v1.0
+   ──────────────────────
+   • Full mobile-first rewrite — base styles target phones,
+     then scale UP with min-width media queries
+   • All font sizes use clamp() — fluid between phone & desktop
+   • Hero headline cut from clamp(2.2rem,5vw,3.6rem)
+     → clamp(1.65rem,4.5vw,2.8rem)  (less overwhelming)
+   • Consistent 8px spacing grid via CSS custom properties
+   • Three proper breakpoints: 480px → 768px → 1024px
+   • Buttons meet 44px minimum tap-target height (Apple/Google)
+   • Softer font weights (700 instead of 800 on most headings)
+   • Subtle letter-spacing on headings for premium feel
+   • Lighter box-shadows throughout
+   • Sticky mobile CTA bar pinned to bottom on phones
+   • Section padding shrinks on mobile via clamp()
+   • Navbar tightened for small screens
+
+   TABLE OF CONTENTS
+   ─────────────────
+   1.  CSS Variables & 8px Spacing Scale
+   2.  Reset & Base
+   3.  Fluid Typography System
+   4.  Utility Classes & Layout
+   5.  Buttons
+   6.  Navbar
+   7.  Hero Section
+   8.  Stats Band
+   9.  About Section
+   10. Courses Section
+   11. Teachers Section
+   12. Results & Achievements
+   13. Testimonials
+   14. Location
+   15. Contact & Form
+   16. Footer
+   17. Mobile Sticky CTA Bar  [NEW]
+   18. Scroll-Reveal Styles
+   19. Breakpoints — 480px / 768px / 1024px
+============================================================ */
+
+
+/* ============================================================
+   1. CSS VARIABLES & 8PX SPACING SCALE
+   ──────────────────────────────────────
+   All spacing uses multiples of 8px.
+   --space-1 =  8px   tiny gaps
+   --space-2 = 16px   button padding, small elements
+   --space-3 = 24px   card padding, gutters
+   --space-4 = 32px   section subsections
+   --space-5 = 40px   section headers
+   --space-6 = 48px   section padding (mobile)
+   --space-8 = 64px   section padding (tablet)
+   --space-10= 80px   section padding (desktop)
+============================================================ */
+:root {
+
+  /* ── Brand colours ── */
+  --clr-blue:        #2B3FD4;
+  --clr-blue-2:      #4A5EFF;
+  --clr-blue-light:  #EEF0FF;
+  --clr-yellow:      #F5C100;
+  --clr-yellow-dark: #D4A800;
+  --clr-yellow-bg:   #FFFBE6;
+  --clr-green:       #0FD17A;
+  --clr-pink:        #FF4E8E;
+
+  /* ── Neutrals ── */
+  --clr-dark:   #0D1025;
+  --clr-dark-2: #1A1F4A;
+  /* CHANGED: muted slightly darker than v1 → better contrast */
+  --clr-muted:  #5E6899;
+  --clr-light:  #F5F6FF;
+  --clr-white:  #FFFFFF;
+  --clr-border: #E4E7F8;
+
+  /* ── Fonts ── */
+  --font-display: 'Syne', sans-serif;    /* Headings */
+  --font-body:    'DM Sans', sans-serif; /* Body copy */
+
+  /* ── 8px spacing scale ── */
+  --space-1:   8px;
+  --space-2:  16px;
+  --space-3:  24px;
+  --space-4:  32px;
+  --space-5:  40px;
+  --space-6:  48px;
+  --space-8:  64px;
+  --space-10: 80px;
+
+  /* ── Layout ── */
+  --container: 1200px;
+
+  /* ── Border radii ──
+     CHANGED: 18px → 16px — slightly softer */
+  --radius:    16px;
+  --radius-sm: 10px;
+  --radius-xs:  6px;
+
+  /* ── Shadows ──
+     CHANGED: lighter in v2 — subtle, not heavy */
+  --shadow:    0 2px 16px rgba(43, 63, 212, 0.07);
+  --shadow-lg: 0 8px 36px rgba(43, 63, 212, 0.11);
+  --shadow-xl: 0 16px 56px rgba(43, 63, 212, 0.15);
+
+  /* ── Transitions ── */
+  --transition: 0.22s ease;
+}
+
+
+/* ============================================================
+   2. RESET & BASE
+============================================================ */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Prevent iOS auto font inflation on orientation change */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--clr-light);
+  color: var(--clr-dark);
+  /* CHANGED: 1.65 → 1.6 default, overridden per element */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+ul  { list-style: none; }
+a   { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+
+/* Ensure form elements inherit the body font */
+input, select, textarea, button {
+  font-family: var(--font-body);
+}
+
+
+/* ============================================================
+   3. FLUID TYPOGRAPHY SYSTEM
+   ───────────────────────────
+   Every font size uses clamp(MIN, FLUID, MAX).
+   The browser interpolates smoothly — no jumping between
+   breakpoints. No separate @media overrides for font sizes.
+
+   KEY CHANGE from v1:
+   v1 used fixed px/rem on most elements, only using clamp()
+   on a few headings. v2 applies fluid sizing everywhere.
+============================================================ */
+
+/* ── All headings — shared base ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--clr-dark);
+  /* CHANGED: was 800 on all — now 700 default, 800 only on h1 */
+  font-weight: 700;
+  /* Tight line-height for headings */
+  line-height: 1.15;
+  /* NEW: subtle negative tracking — modern/premium feel */
+  letter-spacing: -0.02em;
+}
+
+/* h1 — Hero headline only
+   CHANGED: was clamp(2.2rem, 5vw, 3.6rem) — max 3.6rem was
+   enormous on desktop. New max 2.8rem = strong but controlled. */
+h1 {
+  font-size: clamp(1.65rem, 4.5vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+/* h2 — Section titles
+   CHANGED: was clamp(1.8rem, 3vw, 2.6rem) — slightly smaller max */
+h2 {
+  font-size: clamp(1.35rem, 3.2vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* h3 — Card headings */
+h3 {
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* h4–h6 */
+h4 { font-size: clamp(0.88rem, 1.4vw, 1rem);  font-weight: 700; }
+h5 { font-size: 0.82rem;                        font-weight: 700; }
+h6 { font-size: 0.75rem;                        font-weight: 600; }
+
+/* ── Body copy ──
+   CHANGED: was fixed 0.95rem with no scaling.
+   Now fluid — ~14.5px on mobile, ~16.5px on desktop. */
+p {
+  font-size: clamp(0.875rem, 1.3vw, 1.025rem);
+  line-height: 1.75;
+  color: var(--clr-muted);
+}
+
+strong { color: var(--clr-dark); font-weight: 600; }
+
+/* Utility: small text */
+.text-sm { font-size: clamp(0.7rem, 1vw, 0.8rem); }
+
+/* Highlight colour in headings */
+.highlight { color: var(--clr-yellow); }
+
+
+/* ============================================================
+   4. UTILITY CLASSES & LAYOUT
+============================================================ */
+
+/* ── Container ──
+   CHANGED: v1 used padding-inline: 5% (could be too wide on
+   large screens or too tight on tiny ones).
+   v2 uses clamp() so padding is always comfortable. */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: clamp(var(--space-3), 5vw, var(--space-8));
+}
+
+/* ── Section padding ──
+   CHANGED: was a single fixed 88px value with breakpoint overrides.
+   Now a single clamp() — no breakpoint override needed. */
+.section {
+  padding-block: clamp(var(--space-6), 8vw, var(--space-10));
+}
+
+.section--alt { background-color: var(--clr-white); }
+
+/* ── Section header block ── */
+.section-header {
+  text-align: center;
+  /* CHANGED: was fixed 52px */
+  margin-bottom: clamp(var(--space-5), 5vw, var(--space-8));
+}
+
+/* ── Section title ──
+   Inherits h2 fluid sizing. Separate class for spacing. */
+.section-title {
+  margin-bottom: var(--space-2);
+}
+
+/* ── Section sub-copy ── */
+.section-sub {
+  /* CHANGED: fluid */
+  font-size: clamp(0.875rem, 1.3vw, 1rem);
+  line-height: 1.7;
+  color: var(--clr-muted);
+  max-width: 540px;
+  margin-inline: auto;
+}
+
+/* ── Section tag pill ──
+   CHANGED: padding slightly tightened */
+.section-tag {
+  display: inline-block;
+  background: var(--clr-blue-light);
+  color: var(--clr-blue);
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+}
+
+.section-tag--light {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+}
+.section-title--light { color: var(--clr-white); }
+
+
+/* ============================================================
+   5. BUTTONS
+   ──────────
+   KEY CHANGE: All buttons now enforce min-height: 44px.
+   This is the Apple HIG / Google Material minimum tap target.
+   Font sizes are fluid. Padding adjusted accordingly.
+============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  /* Adjusted padding: still looks right but ensures 44px height */
+  padding: 11px 24px;
+  min-height: 44px;   /* NEW: tap target compliance */
+  border-radius: 50px;
+  font-family: var(--font-body);
+  /* CHANGED: fluid font size */
+  font-size: clamp(0.82rem, 1.2vw, 0.92rem);
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Primary blue */
+.btn--primary {
+  background: var(--clr-blue);
+  color: var(--clr-white);
+  border-color: var(--clr-blue);
+  /* CHANGED: lighter shadow */
+  box-shadow: 0 3px 14px rgba(43, 63, 212, 0.28);
+}
+.btn--primary:hover {
+  background: var(--clr-blue-2);
+  border-color: var(--clr-blue-2);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 22px rgba(43, 63, 212, 0.38);
+}
+
+/* Yellow CTA */
+.btn--yellow {
+  background: var(--clr-yellow);
+  color: var(--clr-dark);
+  border-color: var(--clr-yellow);
+  box-shadow: 0 3px 14px rgba(245, 193, 0, 0.35);
+}
+.btn--yellow:hover {
+  background: var(--clr-yellow-dark);
+  border-color: var(--clr-yellow-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 22px rgba(245, 193, 0, 0.45);
+}
+
+/* Ghost / outline */
+.btn--outline {
+  background: transparent;
+  color: var(--clr-white);
+  border-color: rgba(255, 255, 255, 0.38);
+}
+.btn--outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+/* Small (card buttons) — still 44px min via inherited rule */
+.btn--sm {
+  padding: 8px 16px;
+  font-size: 0.78rem;
+  background: var(--clr-blue);
+  color: var(--clr-white);
+  border-color: var(--clr-blue);
+}
+.btn--sm:hover {
+  background: var(--clr-blue-2);
+  border-color: var(--clr-blue-2);
+}
+
+/* Full width */
+.btn--full { width: 100%; }
+
+/* WhatsApp */
+.btn--whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  margin-top: var(--space-2);
+  padding: 12px;
+  min-height: 44px;
+  background: #25D366;
+  color: var(--clr-white);
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: clamp(0.82rem, 1.2vw, 0.9rem);
+  transition: var(--transition);
+  box-shadow: 0 3px 14px rgba(37, 211, 102, 0.28);
+  border: none;
+}
+.btn--whatsapp:hover {
+  background: #1EBD5A;
+  transform: translateY(-2px);
+}
+
+
+/* ============================================================
+   6. NAVBAR
+   ─────────
+   CHANGED: Height 68px → 62px on mobile (reclaims space).
+   Burger tap area enlarged. Logo size fluid.
+   Mobile menu is hidden by default — shown via JS .open class.
+============================================================ */
+
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.93);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(43, 63, 212, 0.06);
+  /* CHANGED: 62px on mobile */
+  height: 62px;
+  transition: box-shadow var(--transition), background var(--transition);
+}
+.navbar.scrolled {
+  box-shadow: 0 3px 24px rgba(43, 63, 212, 0.09);
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  height: 62px;
+  gap: var(--space-3);
+}
+
+/* Logo — fluid size */
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-display);
+  /* CHANGED: fluid */
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-weight: 800;
+  color: var(--clr-dark);
+  flex-shrink: 0;
+}
+.navbar__logo em { color: var(--clr-blue); font-style: normal; }
+.navbar__logo-icon {
+  /* CHANGED: 36px → 32px */
+  width: 32px; height: 32px;
+  background: var(--clr-blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Desktop nav links — hidden on mobile (shown at 768px) */
+.navbar__links {
+  display: none;   /* CHANGED: hidden by default — mobile-first */
+  gap: 2px;
+  align-items: center;
+  margin-left: auto;
+}
+.navbar__link {
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: clamp(0.78rem, 1vw, 0.85rem);
+  font-weight: 500;
+  color: var(--clr-muted);
+  transition: var(--transition);
+}
+.navbar__link:hover,
+.navbar__link.active {
+  background: var(--clr-blue-light);
+  color: var(--clr-blue);
+}
+
+/* Desktop CTA — hidden on mobile */
+.navbar__cta { display: none; flex-shrink: 0; }
+
+/* Burger button — visible on mobile */
+.navbar__burger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  /* CHANGED: enlarged tap area */
+  padding: var(--space-1);
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.navbar__burger span {
+  display: block;
+  width: 22px;
+  height: 2px;   /* CHANGED: 2.5px → 2px — thinner, cleaner */
+  background: var(--clr-dark);
+  border-radius: 4px;
+  transition: transform var(--transition), opacity var(--transition);
+}
+.navbar__burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.navbar__burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.navbar__burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile nav dropdown */
+.navbar__links.open {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 62px;
+  left: 0; right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  padding: var(--space-2) clamp(var(--space-3), 5vw, var(--space-8));
+  gap: 4px;
+  z-index: 998;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.09);
+  border-bottom: 1px solid var(--clr-border);
+}
+.navbar__links.open .navbar__link {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+
+/* ============================================================
+   7. HERO SECTION
+   ────────────────
+   KEY CHANGES:
+   • min-height: 100vh → min(100vh, 820px)
+     Prevents blank space on landscape mobile screens.
+   • Headline: max was 3.6rem → now 2.8rem
+   • Single column by default — two column added at 1024px
+   • Sub-copy slightly tighter
+   • Floating cards hidden on mobile, shown at 1024px
+============================================================ */
+
+.hero {
+  background: var(--clr-dark-2);
+  /* CHANGED: bounded so landscape phones don't see a huge empty hero */
+  min-height: min(100vh, 820px);
+  padding-top: clamp(88px, 13vw, 108px);
+  padding-bottom: clamp(var(--space-8), 8vw, 96px);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.hero__bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.hero__glow { position: absolute; border-radius: 50%; pointer-events: none; }
+.hero__glow--1 {
+  top: -150px; right: -60px;
+  /* CHANGED: fluid size */
+  width: clamp(260px, 42vw, 500px);
+  height: clamp(260px, 42vw, 500px);
+  background: radial-gradient(circle, rgba(43,63,212,.3) 0%, transparent 70%);
+}
+.hero__glow--2 {
+  bottom: -100px; left: 8%;
+  width: clamp(180px, 28vw, 340px);
+  height: clamp(180px, 28vw, 340px);
+  background: radial-gradient(circle, rgba(245,193,0,.11) 0%, transparent 70%);
+}
+
+/* CHANGED: Single column mobile-first */
+.hero__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(var(--space-2), 2vw, var(--space-3));
+}
+
+/* "Now Enrolling" badge */
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: rgba(245,193,0,.13);
+  border: 1px solid rgba(245,193,0,.28);
+  color: var(--clr-yellow);
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: clamp(0.68rem, 1vw, 0.76rem);
+  font-weight: 600;
+  width: fit-content;
+}
+.hero__badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--clr-yellow);
+  flex-shrink: 0;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.35); }
+}
+
+/* ── Hero headline ──
+   CRITICAL CHANGE: was clamp(2.2rem, 5vw, 3.6rem).
+   Max 3.6rem was overwhelming. New max: 2.8rem.
+   Mobile min also reduced: 2.2rem → 1.65rem. */
+.hero__headline {
+  font-size: clamp(1.65rem, 4.5vw, 2.8rem);
+  font-weight: 800;
+  color: var(--clr-white);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+/* Hero sub-copy — fluid, not too wide */
+.hero__sub {
+  color: rgba(255, 255, 255, 0.58);
+  /* CHANGED: was fixed 1.05rem */
+  font-size: clamp(0.875rem, 1.4vw, 1rem);
+  line-height: 1.75;
+  max-width: 460px;
+}
+
+/* CTA row — wraps on tiny screens */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Trust stats */
+.hero__trust {
+  display: flex;
+  align-items: center;
+  gap: clamp(var(--space-2), 3vw, var(--space-4));
+  padding-top: var(--space-2);
+  flex-wrap: wrap;
+}
+.hero__trust-item { display: flex; flex-direction: column; }
+.hero__trust-item strong {
+  font-family: var(--font-display);
+  /* CHANGED: was fixed 1.8rem */
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+  color: var(--clr-white);
+  line-height: 1;
+}
+.hero__trust-item span {
+  font-size: clamp(0.62rem, 1vw, 0.72rem);
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+}
+.hero__trust-divider {
+  width: 1px; height: 32px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  /* Hidden on mobile — shown at 768px+ */
+  display: none;
+}
+
+/* Floating cards — hidden on mobile, visible from 1024px */
+.hero__visual {
+  display: none;
+  position: relative;
+  height: 300px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero__card {
+  position: absolute;
+  background: var(--clr-white);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  box-shadow: var(--shadow-xl);
+  animation: float 4s ease-in-out infinite;
+}
+.hero__card--1 { top: 0;   left: 0;   width: 190px; }
+.hero__card--2 { bottom: 0; right: 0; width: 205px; animation-delay: 1.5s; }
+.hero__card--3 { top: 50%; left: 50%; transform: translate(-50%,-50%); width: 180px; animation-delay: .8s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+.hero__card--3 { animation-name: float-center; }
+@keyframes float-center {
+  0%, 100% { transform: translate(-50%,-50%) translateY(0); }
+  50%       { transform: translate(-50%,-50%) translateY(-10px); }
+}
+
+.hero__card-icon  { font-size: 1.4rem; margin-bottom: 5px; }
+.hero__card-label {
+  font-size: 0.66rem; font-weight: 700;
+  color: var(--clr-muted); text-transform: uppercase; letter-spacing: 0.4px;
+}
+.hero__card-value {
+  font-family: var(--font-display);
+  /* CHANGED: was 1.25rem */
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  font-weight: 800; color: var(--clr-blue);
+}
+
+
+/* ============================================================
+   8. STATS BAND
+   ─────────────
+   CHANGED: 2 columns on mobile by default. 4 at 768px.
+   Number sizes fluid via clamp().
+============================================================ */
+
+.stats-band {
+  background: var(--clr-blue);
+  padding-block: clamp(var(--space-4), 4vw, var(--space-6));
+}
+
+.stats-band__inner {
+  display: grid;
+  /* CHANGED: 2 col base — was 4 with no mobile handling */
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: var(--space-4);
+}
+
+.stats-band__item {
+  text-align: center;
+  padding-inline: var(--space-2);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+/* Remove right border on even items in 2-col layout */
+.stats-band__item:nth-child(even) { border-right: none; }
+
+.stats-band__item strong {
+  font-family: var(--font-display);
+  /* CHANGED: was fixed 2.1rem */
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800; color: var(--clr-white); line-height: 1;
+}
+.stats-band__item span { font-size: 1.2rem; color: var(--clr-yellow); vertical-align: middle; }
+.stats-band__item p {
+  font-size: clamp(0.7rem, 1vw, 0.8rem);
+  color: rgba(255, 255, 255, 0.5); margin-top: 4px;
+}
+
+
+/* ============================================================
+   9. ABOUT SECTION
+   ─────────────────
+   CHANGED: Single column mobile. Two columns at 1024px.
+   Spacing tightened throughout.
+============================================================ */
+
+.about__inner {
+  display: grid;
+  grid-template-columns: 1fr; /* CHANGED: single col base */
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.about__text .section-tag   { margin-bottom: var(--space-1); }
+.about__text .section-title { margin-bottom: var(--space-3); }
+.about__text p              { margin-bottom: var(--space-2); }
+
+/* Values: 1 col mobile, 2 col from 480px */
+.about__values {
+  display: grid;
+  grid-template-columns: 1fr; /* CHANGED: single col base */
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.about__value {
+  background: var(--clr-light);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  display: flex; gap: var(--space-2); align-items: flex-start;
+}
+.about__value-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+.about__value strong {
+  display: block;
+  font-size: clamp(0.82rem, 1.1vw, 0.9rem);
+  margin-bottom: 2px;
+}
+.about__value p { font-size: clamp(0.75rem, 1vw, 0.82rem); margin: 0; }
+
+.about__cards { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.about__stat-card {
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.about__stat-card--blue   { background: var(--clr-blue);   color: var(--clr-white); }
+.about__stat-card--yellow { background: var(--clr-yellow); color: var(--clr-dark);  }
+.about__stat-card--dark   { background: var(--clr-dark-2); color: var(--clr-white); }
+
+.about__stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem); /* CHANGED: was fixed 2rem */
+  font-weight: 800; line-height: 1;
+}
+.about__stat-label { font-size: clamp(0.7rem, 1vw, 0.78rem); opacity: 0.68; margin-top: 4px; }
+.about__stat-emoji { font-size: 1.8rem; }
+
+.about__partner {
+  display: flex; align-items: center; gap: var(--space-1);
+  background: var(--clr-yellow-bg);
+  border: 2px solid var(--clr-yellow);
+  border-radius: var(--radius); padding: var(--space-2);
+}
+.about__partner span:last-child {
+  font-weight: 700;
+  font-size: clamp(0.78rem, 1.1vw, 0.87rem);
+  color: var(--clr-dark);
+}
+
+
+/* ============================================================
+   10. COURSES SECTION
+============================================================ */
+
+.courses__grid {
+  display: grid;
+  /* CHANGED: min 240px (was 260px) — fits 2 cols on most phones */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+
+.course-card {
+  background: var(--clr-white); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.course-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+
+.course-card__thumb {
+  /* CHANGED: 120px → 96px — less wasted space on mobile */
+  height: 96px;
+  display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+}
+.course-card__thumb--blue   { background: linear-gradient(135deg, var(--clr-blue), #7B8FFF); }
+.course-card__thumb--yellow { background: linear-gradient(135deg, #D4A800, var(--clr-yellow)); }
+.course-card__thumb--green  { background: linear-gradient(135deg, #0AA860, var(--clr-green)); }
+.course-card__thumb--pink   { background: linear-gradient(135deg, #CC0060, var(--clr-pink)); }
+
+.course-card__body { padding: var(--space-3); }
+
+.course-card__badge {
+  display: inline-block; padding: 3px 10px; border-radius: 50px;
+  font-size: 0.7rem; font-weight: 700; margin-bottom: var(--space-1);
+}
+.course-card__badge--blue   { background: var(--clr-blue-light);           color: var(--clr-blue); }
+.course-card__badge--yellow { background: rgba(245,193,0,.14);              color: #7A5E00; }
+.course-card__badge--green  { background: rgba(15,209,122,.11);             color: #006B40; }
+.course-card__badge--pink   { background: rgba(255,78,142,.1);              color: #9E0042; }
+
+.course-card__body h3 { margin-bottom: var(--space-1); }
+.course-card__body p  {
+  font-size: clamp(0.8rem, 1.1vw, 0.88rem);
+  line-height: 1.65; margin-bottom: var(--space-2);
+}
+.course-card__meta {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: var(--space-1);
+}
+.course-card__meta span { font-size: 0.76rem; font-weight: 500; color: var(--clr-muted); }
+
+
+/* ============================================================
+   11. TEACHERS SECTION
+============================================================ */
+
+.teachers__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-3);
+}
+
+.teacher-card {
+  background: var(--clr-white); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.teacher-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+
+.teacher-card__avatar {
+  /* CHANGED: 80px → 72px */
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: var(--space-4) auto 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; border: 3px solid var(--clr-white);
+  box-shadow: 0 4px 14px rgba(0,0,0,.1);
+}
+.teacher-card__avatar--blue   { background: linear-gradient(135deg, var(--clr-blue),  var(--clr-blue-2)); }
+.teacher-card__avatar--yellow { background: linear-gradient(135deg, #D4A800,           var(--clr-yellow)); }
+.teacher-card__avatar--pink   { background: linear-gradient(135deg, #CC0060,           var(--clr-pink));   }
+.teacher-card__avatar--green  { background: linear-gradient(135deg, #0AA860,           var(--clr-green));  }
+
+.teacher-card__body { padding: var(--space-2) var(--space-3) var(--space-3); text-align: center; }
+.teacher-card__name { margin-bottom: 3px; }
+.teacher-card__role { font-size: clamp(0.7rem, 1vw, 0.8rem); color: var(--clr-blue); font-weight: 600; margin-bottom: var(--space-2); }
+
+.teacher-card__stats {
+  display: flex; flex-direction: column; gap: 5px;
+  margin-bottom: var(--space-2); text-align: left;
+  padding: var(--space-1) var(--space-2);
+  background: var(--clr-light); border-radius: var(--radius-sm);
+}
+.teacher-card__stats li    { font-size: clamp(0.7rem, 1vw, 0.78rem); color: var(--clr-muted); }
+.teacher-card__stats strong { color: var(--clr-dark); font-weight: 600; }
+
+.teacher-card__bio {
+  font-size: clamp(0.75rem, 1vw, 0.8rem);
+  line-height: 1.6; margin-bottom: var(--space-2); text-align: left;
+}
+
+.teacher-card__tags { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.teacher-card__tags span {
+  background: var(--clr-blue-light); color: var(--clr-blue);
+  padding: 3px 9px; border-radius: 50px; font-size: 0.68rem; font-weight: 700;
+}
+
+
+/* ============================================================
+   12. RESULTS & ACHIEVEMENTS
+   ───────────────────────────
+   CHANGED: Score val font reduced slightly.
+   Achievements: 2-col on mobile, 4-col on tablet+.
+============================================================ */
+
+.results__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-2); margin-bottom: var(--space-8);
+}
+
+.score-card {
+  background: var(--clr-white); border-radius: var(--radius);
+  overflow: hidden; box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.score-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.score-card__top {
+  background: linear-gradient(135deg, var(--clr-blue), var(--clr-blue-2));
+  padding: var(--space-2);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.score-card__top--gold  { background: linear-gradient(135deg, #D4A800,  var(--clr-yellow)); }
+.score-card__top--green { background: linear-gradient(135deg, #0AA860,  var(--clr-green));  }
+
+.score-card__avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.82rem; font-weight: 800;
+  color: var(--clr-white); flex-shrink: 0;
+}
+.score-card__bands { display: flex; align-items: center; gap: var(--space-1); }
+.score-card__val {
+  display: block; font-family: var(--font-display);
+  /* CHANGED: was 1.5rem */
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  font-weight: 800; color: var(--clr-white); line-height: 1;
+}
+.score-card__lbl {
+  display: block; font-size: 0.6rem;
+  color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .3px; margin-top: 3px;
+}
+.score-card__arrow { color: rgba(255,255,255,.75); font-size: 1rem; font-weight: 700; }
+
+.score-card__body { padding: var(--space-2); }
+.score-card__body strong { display: block; font-size: clamp(0.82rem, 1.1vw, 0.9rem); margin-bottom: 2px; }
+.score-card__body p      { font-size: 0.73rem; margin-bottom: var(--space-1); }
+.score-card__tag {
+  display: inline-block; background: var(--clr-blue-light); color: var(--clr-blue);
+  padding: 2px 9px; border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+}
+
+/* Achievements — 2 col mobile */
+.achievements {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* CHANGED: 2 col base */
+  background: var(--clr-dark-2);
+  border-radius: var(--radius); overflow: hidden;
+  padding: clamp(var(--space-4), 4vw, var(--space-6)) 0;
+}
+
+.achievement {
+  text-align: center; padding-inline: var(--space-2);
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+.achievement:nth-child(even) { border-right: none; }
+/* Top border on 3rd & 4th items in 2-col layout */
+.achievement:nth-child(3),
+.achievement:nth-child(4) {
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.achievement strong {
+  display: block; font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.1rem); /* CHANGED: was fixed 2.4rem */
+  font-weight: 800; color: var(--clr-white); line-height: 1;
+}
+.achievement span { color: var(--clr-yellow); font-size: 1.3rem; }
+.achievement p    { font-size: clamp(0.7rem, 1vw, 0.8rem); color: rgba(255,255,255,.4); margin-top: 5px; }
+
+
+/* ============================================================
+   13. TESTIMONIALS
+============================================================ */
+
+.testi__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: var(--space-3);
+}
+
+.testi-card {
+  background: var(--clr-white); border-radius: var(--radius);
+  padding: var(--space-4); box-shadow: var(--shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+  display: flex; flex-direction: column; gap: var(--space-2);
+}
+.testi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.testi-card__stars { color: var(--clr-yellow); font-size: 0.9rem; letter-spacing: 2px; }
+.testi-card__quote { font-size: clamp(0.82rem, 1.2vw, 0.9rem); line-height: 1.75; color: var(--clr-dark); font-style: italic; flex-grow: 1; }
+
+.testi-card__author { display: flex; align-items: center; gap: var(--space-2); }
+.testi-card__avatar {
+  /* CHANGED: 44px → 40px */
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 0.78rem; font-weight: 800;
+  color: var(--clr-white); flex-shrink: 0;
+}
+.testi-card__avatar--blue   { background: var(--clr-blue);        }
+.testi-card__avatar--yellow { background: var(--clr-yellow-dark); }
+.testi-card__avatar--pink   { background: var(--clr-pink);        }
+.testi-card__avatar--green  { background: var(--clr-green);       }
+
+.testi-card__author strong { display: block; font-size: clamp(0.82rem, 1.1vw, 0.9rem); }
+.testi-card__author span   { font-size: clamp(0.68rem, 1vw, 0.76rem); color: var(--clr-muted); }
+
+
+/* ============================================================
+   14. LOCATION
+   ─────────────
+   CHANGED: Single column mobile. Two columns at 768px.
+   Map height fluid.
+============================================================ */
+
+.location__inner {
+  display: grid;
+  grid-template-columns: 1fr; /* CHANGED: single col base */
+  gap: var(--space-6); align-items: start;
+}
+
+.location__map {
+  border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg);
+  /* CHANGED: was fixed 380px */
+  height: clamp(220px, 38vw, 380px);
+}
+.location__map iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+.location__info { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.location__detail {
+  background: var(--clr-light); border-radius: var(--radius-sm);
+  padding: var(--space-2); display: flex; gap: var(--space-2); align-items: flex-start;
+}
+.location__icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+.location__detail strong {
+  display: block; font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .3px;
+  color: var(--clr-muted); margin-bottom: 3px;
+}
+.location__detail p { font-size: clamp(0.8rem, 1.1vw, 0.87rem); font-weight: 500; color: var(--clr-dark); margin: 0; }
+.location__detail p em { font-size: 0.73rem; color: var(--clr-muted); font-style: normal; }
+.location__map-btn { margin-top: 4px; }
+
+
+/* ============================================================
+   15. CONTACT & FORM
+   ───────────────────
+   CHANGED: Single column mobile. Two columns at 768px.
+   Form padding fluid. All inputs 44px min height.
+============================================================ */
+
+.contact { background: var(--clr-dark-2); }
+
+.contact__inner {
+  display: grid;
+  grid-template-columns: 1fr; /* CHANGED: single col base */
+  gap: var(--space-6); align-items: start;
+}
+
+.contact__text p                { color: rgba(255,255,255,.48); margin-bottom: var(--space-4); }
+.contact__text .section-sub     { color: rgba(255,255,255,.48); text-align: left; margin: 0 0 var(--space-4); }
+
+.contact__channels              { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.contact__channel {
+  display: flex; align-items: center; gap: var(--space-2);
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: var(--radius-sm); padding: var(--space-2);
+  transition: var(--transition); cursor: pointer; min-height: 44px;
+}
+.contact__channel:hover { background: rgba(255,255,255,.09); transform: translateX(4px); }
+.contact__channel > span:first-child { font-size: 1.3rem; }
+.contact__channel strong { display: block; font-size: clamp(0.8rem, 1.1vw, 0.85rem); color: var(--clr-white); }
+.contact__channel span:last-child { font-size: clamp(0.68rem, 1vw, 0.78rem); color: rgba(255,255,255,.4); }
+
+.contact__form-wrap {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: var(--radius);
+  /* CHANGED: fluid padding */
+  padding: clamp(var(--space-3), 4vw, var(--space-5));
+}
+
+.form-group           { display: flex; flex-direction: column; gap: 5px; margin-bottom: var(--space-3); }
+.form-group label     { font-size: clamp(0.73rem, 1vw, 0.8rem); font-weight: 600; color: rgba(255,255,255,.52); }
+.optional             { font-weight: 400; opacity: .6; }
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.11);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px; min-height: 44px; /* NEW: tap target */
+  font-size: clamp(0.82rem, 1.1vw, 0.88rem);
+  font-family: var(--font-body); color: var(--clr-white);
+  outline: none; transition: border-color var(--transition); width: 100%;
+}
+.form-group select option { background: var(--clr-dark-2); color: var(--clr-white); }
+.form-group textarea      { resize: vertical; min-height: 88px; }
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--clr-yellow); background: rgba(255,255,255,.09); }
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: rgba(255,255,255,.27); }
+
+.form-group__error { font-size: 0.72rem; color: #FF7070; display: none; }
+.form-group.error .form-group__error { display: block; }
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea { border-color: #FF7070; }
+
+.form-success {
+  display: none; text-align: center; padding: var(--space-3);
+  background: rgba(15,209,122,.11); border: 1px solid rgba(15,209,122,.28);
+  border-radius: var(--radius-sm); color: var(--clr-green);
+  font-weight: 600; font-size: clamp(0.82rem, 1.1vw, 0.9rem);
+  margin-top: var(--space-2); animation: fadeIn .4s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ============================================================
+   16. FOOTER
+   ───────────
+   CHANGED: Single column mobile.
+   Two columns at 480px. Four columns at 768px.
+============================================================ */
+
+.footer { background: var(--clr-dark); }
+
+.footer__inner {
+  display: grid;
+  grid-template-columns: 1fr; /* CHANGED: single col base */
+  gap: var(--space-6);
+  padding-top:    clamp(var(--space-6), 6vw, var(--space-8));
+  padding-bottom: clamp(var(--space-5), 5vw, var(--space-8));
+}
+
+.footer__logo {
+  display: block; font-family: var(--font-display);
+  font-size: clamp(1rem, 1.5vw, 1.2rem); font-weight: 800;
+  color: var(--clr-white); margin-bottom: var(--space-2);
+}
+.footer__logo em { color: var(--clr-yellow); font-style: normal; }
+
+.footer__brand p {
+  font-size: clamp(0.78rem, 1vw, 0.82rem);
+  color: rgba(255,255,255,.38); line-height: 1.75; margin-bottom: var(--space-3);
+}
+
+.footer__socials { display: flex; gap: var(--space-1); }
+.footer__socials a {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: rgba(255,255,255,.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.88rem; transition: var(--transition);
+}
+.footer__socials a:hover { background: var(--clr-blue); }
+
+.footer__col h5 {
+  color: rgba(255,255,255,.7); font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: var(--space-2);
+}
+.footer__col a {
+  display: block; font-size: clamp(0.78rem, 1vw, 0.82rem);
+  color: rgba(255,255,255,.35); margin-bottom: var(--space-1);
+  transition: color var(--transition);
+}
+.footer__col a:hover { color: var(--clr-yellow); }
+
+.footer__bottom { border-top: 1px solid rgba(255,255,255,.06); }
+.footer__bottom-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-block: var(--space-3); flex-wrap: wrap; gap: var(--space-2);
+}
+.footer__bottom p { font-size: clamp(0.68rem, 1vw, 0.75rem); color: rgba(255,255,255,.2); margin: 0; }
+.footer__badge {
+  background: rgba(245,193,0,.11); border: 1px solid rgba(245,193,0,.22);
+  color: var(--clr-yellow); padding: 4px 12px; border-radius: 50px;
+  font-size: 0.7rem; font-weight: 700;
+}
+
+
+/* ============================================================
+   17. MOBILE STICKY CTA BAR   [NEW IN V2]
+   ─────────────────────────────
+   Pinned to the bottom of the screen on mobile.
+   Gives users a persistent conversion action without
+   needing to scroll back to the top.
+   Hidden on tablet+ (768px and up).
+   JS can add .hidden to slide it out when user reaches
+   the #contact section.
+============================================================ */
+
+.mobile-cta-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 990;
+  background: rgba(255, 255, 255, 0.97);
+  border-top: 1px solid var(--clr-border);
+  padding: var(--space-2) clamp(var(--space-3), 5vw, var(--space-5));
+  display: flex;
+  gap: var(--space-2);
+  box-shadow: 0 -4px 24px rgba(43, 63, 212, 0.1);
+  transition: transform var(--transition), opacity var(--transition);
+}
+/* Slide-out when .hidden class is added by JS */
+.mobile-cta-bar.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+.mobile-cta-bar .btn { flex: 1; }
+
+/* Push body content above the bar */
+@supports selector(:has(*)) {
+  body:has(.mobile-cta-bar:not(.hidden)) {
+    padding-bottom: 76px;
+  }
+}
+/* Fallback for browsers without :has() */
+.has-mobile-cta {
+  padding-bottom: 76px;
+}
+
+
+/* ============================================================
+   18. SCROLL-REVEAL STYLES
+   Also injected by script.js — duplicated here so elements
+   are never invisible if JS hasn't parsed yet.
+============================================================ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   19. RESPONSIVE BREAKPOINTS
+   ────────────────────────────
+   CHANGED: v1 had two max-width breakpoints (960px, 640px).
+   v2 uses THREE min-width breakpoints (mobile-first):
+     480px — small phones / landscape
+     768px — tablets, large phones
+    1024px — desktop, laptops
+============================================================ */
+
+
+/* ─────────────────────────────────────────────
+   480px — Small phones / landscape orientation
+   Two-column grids begin. About values 2-col.
+───────────────────────────────────────────── */
+@media (min-width: 480px) {
+
+  /* Values grid: 2 columns */
+  .about__values {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Hero buttons: no longer wrap */
+  .hero__actions { flex-wrap: nowrap; }
+
+  /* Footer: 2-col, brand spans full row */
+  .footer__inner         { grid-template-columns: 1fr 1fr; }
+  .footer__brand         { grid-column: 1 / -1; }
+
+  /* Trust dividers visible */
+  .hero__trust-divider { display: block; }
+
+}
+
+
+/* ─────────────────────────────────────────────
+   768px — Tablets / large phones
+   Full navbar appears. Two-column main layouts.
+───────────────────────────────────────────── */
+@media (min-width: 768px) {
+
+  /* Navbar: show full link bar, hide burger */
+  .navbar { height: 66px; }
+  .navbar__inner { height: 66px; }
+
+  .navbar__links {
+    display: flex !important; /* Always show — override JS .open toggling */
+    position: static;
+    flex-direction: row;
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    gap: 2px;
+  }
+  .navbar__cta    { display: inline-flex; }
+  .navbar__burger { display: none; }
+
+  /* Mobile sticky CTA: hidden */
+  .mobile-cta-bar { display: none; }
+  body            { padding-bottom: 0; }
+
+  /* Stats band: 4 columns */
+  .stats-band__inner {
+    grid-template-columns: repeat(4, 1fr);
+    row-gap: 0;
+  }
+  .stats-band__item             { border-right: 1px solid rgba(255,255,255,.12); }
+  .stats-band__item:last-child  { border-right: none; }
+  /* Reset the even-child no-border rule from mobile */
+  .stats-band__item:nth-child(even) { border-right: 1px solid rgba(255,255,255,.12); }
+  .stats-band__item:nth-child(4)    { border-right: none; }
+
+  /* Achievements: 4 columns */
+  .achievements { grid-template-columns: repeat(4, 1fr); }
+  /* Remove top-border rules used in 2-col mobile layout */
+  .achievement:nth-child(3),
+  .achievement:nth-child(4) {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  /* Reset even-child border */
+  .achievement:nth-child(even) { border-right: 1px solid rgba(255,255,255,.08); }
+  .achievement:last-child      { border-right: none; }
+
+  /* Location: 2 columns */
+  .location__inner { grid-template-columns: 1fr 1fr; }
+
+  /* Contact: 2 columns */
+  .contact__inner { grid-template-columns: 1fr 1fr; }
+
+  /* Footer: 4 columns, brand normal width */
+  .footer__inner  { grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: var(--space-8); }
+  .footer__brand  { grid-column: auto; }
+
+  /* Footer bottom: row layout */
+  .footer__bottom-inner { flex-direction: row; }
+
+}
+
+
+/* ─────────────────────────────────────────────
+   1024px — Desktop / Laptops
+   Hero becomes 2-column, about 2-column.
+   Taller navbar. Floating hero cards appear.
+───────────────────────────────────────────── */
+@media (min-width: 1024px) {
+
+  /* Navbar: full desktop height */
+  .navbar        { height: 68px; }
+  .navbar__inner { height: 68px; }
+
+  /* Hero: 2-column, show floating cards */
+  .hero__inner             { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+  .hero__visual            { display: flex; }
+
+  /* About: 2 columns */
+  .about__inner            { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+
+}
